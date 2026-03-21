@@ -1,0 +1,26 @@
+{
+  "name": "arbol-maple-ai-agent",
+  "version": "1.0.0",
+  "description": "Sistema de agentes AI para automatización de ventas - Árbol de Maple",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alye-ec/arbol-maple-ai-agent.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/alye-ec/arbol-maple-ai-agent/issues"
+  },
+  "homepage": "https://github.com/alye-ec/arbol-maple-ai-agent#readme",
+  "dependencies": {
+    "axios": "^1.13.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1"
+  }
+}
