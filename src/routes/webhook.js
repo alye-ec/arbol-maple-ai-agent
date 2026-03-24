@@ -23,21 +23,29 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   const body = req.body;
 
+  // Formato estándar con entry (mensajes reales)
   if (body.object === 'instagram' || body.object === 'page') {
     body.entry?.forEach(entry => {
       entry.messaging?.forEach(event => {
         if (event.message && !event.message.is_echo) {
           const senderId = event.sender.id;
           const texto = event.message.text;
-
-          if (texto) {
-            procesarMensaje(senderId, texto);
-          }
+          if (texto) procesarMensaje(senderId, texto);
         }
       });
     });
-
     res.status(200).send('EVENT_RECEIVED');
+
+  // Formato de prueba de Meta (field/value)
+  } else if (body.field === 'messages' && body.value) {
+    const event = body.value;
+    if (event.message && event.sender?.id) {
+      const senderId = event.sender.id;
+      const texto = event.message.text;
+      if (texto) procesarMensaje(senderId, texto);
+    }
+    res.status(200).send('EVENT_RECEIVED');
+
   } else {
     res.sendStatus(404);
   }
