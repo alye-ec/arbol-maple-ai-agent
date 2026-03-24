@@ -22,6 +22,7 @@ router.get('/', (req, res) => {
 // Recepción de mensajes
 router.post('/', (req, res) => {
   const body = req.body;
+  console.log('📨 Payload recibido:', JSON.stringify(body));
 
   // Formato estándar con entry (mensajes reales)
   if (body.object === 'instagram' || body.object === 'page') {
