@@ -23,7 +23,7 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   const body = req.body;
 
-  if (body.object === 'instagram') {
+  if (body.object === 'instagram' || body.object === 'page') {
     body.entry?.forEach(entry => {
       entry.messaging?.forEach(event => {
         if (event.message && !event.message.is_echo) {
