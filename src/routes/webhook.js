@@ -25,49 +25,41 @@ router.post('/', async (req, res) => {
   console.log('📨 Payload recibido:', JSON.stringify(body));
 
   if (body.object === 'instagram' || body.object === 'page') {
-    body.entry?.forEach(entry => {
 
-      // Formato con changes (Meta real)
-      entry.changes?.forEach(change => {
-        if (change.field === 'messages' && change.value?.message) {
+    for (const entry of body.entry || []) {
+
+      // 🔹 Formato changes (Instagram real)
+      for (const change of entry.changes || []) {
+        if (change.value?.message) {
           const event = change.value;
+
           if (!event.message.is_echo && event.message.text) {
             try {
-  await procesarMensaje(event.sender.id, event.message.text);
-} catch (error) {
-  console.error("❌ Error en procesarMensaje:");
-
-  if (error.response) {
-    console.error("📡 Meta respondió:");
-    console.error(error.response.data);
-  } else {
-    console.error(error.message);
-  }
-}
+              await procesarMensaje(event.sender.id, event.message.text);
+            } catch (error) {
+              console.error("❌ Error en procesarMensaje:");
+              console.error(error.response?.data || error.message);
+            }
           }
         }
-      });
+      }
 
-      // Formato con messaging (alternativo)
-      entry.messaging?.forEach(event => {
+      // 🔹 Formato messaging (fallback)
+      for (const event of entry.messaging || []) {
         if (event.message && !event.message.is_echo && event.message.text) {
           try {
-  await procesarMensaje(event.sender.id, event.message.text);
-} catch (error) {
-  console.error("❌ Error en procesarMensaje:");
-
-  if (error.response) {
-    console.error("📡 Meta respondió:");
-    console.error(error.response.data);
-  } else {
-    console.error(error.message);
-  }
-}
+            await procesarMensaje(event.sender.id, event.message.text);
+          } catch (error) {
+            console.error("❌ Error en procesarMensaje:");
+            console.error(error.response?.data || error.message);
+          }
         }
-      });
+      }
 
-    });
+    }
+
     res.status(200).send('EVENT_RECEIVED');
+
   } else {
     res.sendStatus(404);
   }
