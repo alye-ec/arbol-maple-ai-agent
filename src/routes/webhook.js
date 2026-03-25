@@ -20,7 +20,7 @@ router.get('/', (req, res) => {
 });
 
 // Recepción de mensajes
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const body = req.body;
   console.log('📨 Payload recibido:', JSON.stringify(body));
 
@@ -32,7 +32,18 @@ router.post('/', (req, res) => {
         if (change.field === 'messages' && change.value?.message) {
           const event = change.value;
           if (!event.message.is_echo && event.message.text) {
-            procesarMensaje(event.sender.id, event.message.text);
+            try {
+  await procesarMensaje(event.sender.id, event.message.text);
+} catch (error) {
+  console.error("❌ Error en procesarMensaje:");
+
+  if (error.response) {
+    console.error("📡 Meta respondió:");
+    console.error(error.response.data);
+  } else {
+    console.error(error.message);
+  }
+}
           }
         }
       });
@@ -40,7 +51,18 @@ router.post('/', (req, res) => {
       // Formato con messaging (alternativo)
       entry.messaging?.forEach(event => {
         if (event.message && !event.message.is_echo && event.message.text) {
-          procesarMensaje(event.sender.id, event.message.text);
+          try {
+  await procesarMensaje(event.sender.id, event.message.text);
+} catch (error) {
+  console.error("❌ Error en procesarMensaje:");
+
+  if (error.response) {
+    console.error("📡 Meta respondió:");
+    console.error(error.response.data);
+  } else {
+    console.error(error.message);
+  }
+}
         }
       });
 
