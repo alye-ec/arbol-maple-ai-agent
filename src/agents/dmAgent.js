@@ -59,9 +59,10 @@ async function enviarMensajeInstagram(recipientId, texto) {
     });
 
 console.log("🔑 TOKEN:", process.env.META_PAGE_ACCESS_TOKEN);
+console.log("📋 ACCOUNT ID:", process.env.INSTAGRAM_ACCOUNT_ID);
 
     await axios.post(
-      `https://graph.facebook.com/v18.0/me/messages`,
+      `https://graph.facebook.com/v21.0/${process.env.INSTAGRAM_ACCOUNT_ID}/messages`,
       {
         recipient: { id: recipientId },
         message: { text: texto }
