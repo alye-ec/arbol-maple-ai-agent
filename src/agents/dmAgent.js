@@ -62,18 +62,18 @@ console.log("🔑 TOKEN:", process.env.META_PAGE_ACCESS_TOKEN);
 console.log("📋 ACCOUNT ID:", process.env.INSTAGRAM_ACCOUNT_ID);
 
     await axios.post(
-      `https://graph.facebook.com/v21.0/${process.env.INSTAGRAM_ACCOUNT_ID}/messages`,
-      {
-      messaging_product: "instagram",
-        recipient: { id: recipientId },
-        message: { text: texto }
-      },
-      {
-        params: {
-          access_token: process.env.META_PAGE_ACCESS_TOKEN
-        }
-      }
-    );
+  `https://graph.facebook.com/v21.0/me/messages`,
+  {
+    messaging_product: "instagram",
+    recipient: { id: recipientId },
+    message: { text: texto }
+  },
+  {
+    params: {
+      access_token: process.env.META_PAGE_ACCESS_TOKEN
+    }
+  }
+);
 
   } catch (error) {
     console.error("❌ Error enviando mensaje a Instagram:");
