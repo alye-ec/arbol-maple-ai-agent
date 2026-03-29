@@ -64,6 +64,7 @@ console.log("📋 ACCOUNT ID:", process.env.INSTAGRAM_ACCOUNT_ID);
     await axios.post(
       `https://graph.facebook.com/v21.0/${process.env.INSTAGRAM_ACCOUNT_ID}/messages`,
       {
+      messaging_product: "instagram",
         recipient: { id: recipientId },
         message: { text: texto }
       },
