@@ -39,53 +39,39 @@ async function procesarMensaje(senderId, mensajeTexto) {
 
 async function enviarMensajeInstagram(recipientId, texto) {
   try {
-    // 🔹 Validaciones
     if (!process.env.META_PAGE_ACCESS_TOKEN) {
       throw new Error("Falta META_PAGE_ACCESS_TOKEN en variables de entorno");
     }
-
-    if (!recipientId) {
-      throw new Error("recipientId es undefined");
-    }
-
-    if (!texto) {
-      throw new Error("texto vacío");
-    }
+    if (!recipientId) throw new Error("recipientId es undefined");
+    if (!texto) throw new Error("texto vacío");
 
     console.log("📤 Enviando mensaje a Meta...");
-    console.log({
-      recipientId,
-      texto
-    });
-
-console.log("🔑 TOKEN:", process.env.META_PAGE_ACCESS_TOKEN);
-console.log("📋 ACCOUNT ID:", process.env.INSTAGRAM_ACCOUNT_ID);
+    console.log({ recipientId, texto });
+    console.log("🔑 TOKEN:", process.env.META_PAGE_ACCESS_TOKEN);
+    console.log("📋 INSTAGRAM ID:", process.env.INSTAGRAM_ACCOUNT_ID);
 
     await axios.post(
-  `https://graph.facebook.com/v21.0/me/messages`,
-  {
-    messaging_product: "instagram",
-    recipient: { id: recipientId },
-    message: { text: texto }
-  },
-  {
-    params: {
-      access_token: process.env.META_PAGE_ACCESS_TOKEN
-    }
-  }
-);
+      `https://graph.facebook.com/v21.0/${process.env.INSTAGRAM_ACCOUNT_ID}/messages`,
+      {
+        recipient: { id: recipientId },
+        message: { text: texto }
+      },
+      {
+        params: {
+          access_token: process.env.META_PAGE_ACCESS_TOKEN
+        }
+      }
+    );
 
   } catch (error) {
     console.error("❌ Error enviando mensaje a Instagram:");
-
     if (error.response) {
       console.error("📡 Meta respondió:");
       console.error(JSON.stringify(error.response.data, null, 2));
     } else {
       console.error(error.message);
     }
-
-    throw error; // 🔥 importante: vuelve a lanzar el error
+    throw error;
   }
 }
 
