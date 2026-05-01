@@ -35,7 +35,7 @@ async function procesarMensaje(senderId, mensajeTexto) {
 async function enviarMensajeInstagram(recipientId, texto) {
   try {
     // Para Instagram Messaging se usa el IGAA token
-    const token = process.env.INSTAGRAM_ACCESS_TOKEN;
+    const token = process.env.META_PAGE_ACCESS_TOKEN;
     const igAccountId = process.env.INSTAGRAM_ACCOUNT_ID;
 
     if (!token) throw new Error("Falta INSTAGRAM_ACCESS_TOKEN en variables de entorno");
