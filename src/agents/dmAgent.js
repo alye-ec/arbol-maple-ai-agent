@@ -34,20 +34,18 @@ async function procesarMensaje(senderId, mensajeTexto) {
 
 async function enviarMensajeInstagram(recipientId, texto) {
   try {
-    const token = process.env.META_PAGE_ACCESS_TOKEN;
+    // Para Instagram Messaging se usa el IGAA token
+    const token = process.env.INSTAGRAM_ACCESS_TOKEN;
     const igAccountId = process.env.INSTAGRAM_ACCOUNT_ID;
 
-  console.log(`🔍 Token length: ${token?.length} | Starts: ${token?.substring(0,10)}`);
-  console.log(`🔍 IG Account ID: ${igAccountId}`);
-
-
-    if (!token) throw new Error("Falta META_PAGE_ACCESS_TOKEN en variables de entorno");
+    if (!token) throw new Error("Falta INSTAGRAM_ACCESS_TOKEN en variables de entorno");
     if (!igAccountId) throw new Error("Falta INSTAGRAM_ACCOUNT_ID en variables de entorno");
     if (!recipientId) throw new Error("recipientId es undefined");
     if (!texto) throw new Error("texto vacío");
 
     console.log(`📤 Enviando respuesta a ${recipientId}...`);
-    
+    console.log(`🔍 Token starts: ${token?.substring(0,10)} | Length: ${token?.length}`);
+
     await axios.post(
       `https://graph.facebook.com/v21.0/${igAccountId}/messages`,
       {
