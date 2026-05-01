@@ -3,6 +3,7 @@ const { preguntarAClaude } = require('../utils/claudeClient');
 
 async function procesarMensaje(senderId, mensajeTexto) {
   console.log(`📩 Mensaje recibido de ${senderId}: ${mensajeTexto}`);
+  
 
   try {
     if (!senderId || !mensajeTexto) {
@@ -44,8 +45,7 @@ async function enviarMensajeInstagram(recipientId, texto) {
     if (!texto) throw new Error("texto vacío");
 
     console.log(`📤 Enviando respuesta a ${recipientId}...`);
-    console.log(`🔍 Token starts: ${token?.substring(0,10)} | Length: ${token?.length}`);
-
+    
     await axios.post(
       `https://graph.facebook.com/v21.0/${igAccountId}/messages`,
       {
