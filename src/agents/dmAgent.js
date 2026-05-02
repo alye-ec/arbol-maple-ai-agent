@@ -1,72 +1,63 @@
-const axios = require('axios');
-const { preguntarAClaude } = require('../utils/claudeClient');
+// src/agents/dmAgent.js
+// Agente de DMs para Árbol de Maple
+// Maneja mensajes de Instagram, Facebook y WhatsApp
 
-async function procesarMensaje(senderId, mensajeTexto) {
-  console.log(`📩 Mensaje recibido de ${senderId}: ${mensajeTexto}`);
-  
+const Anthropic = require('@anthropic-ai/sdk');
+const { SYSTEM_PROMPT } = require('./knowledgeBase');
 
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+// Historial de conversaciones en memoria (por sender ID)
+// Formato: { senderId: [ {role, content}, ... ] }
+const conversationHistory = {};
+const MAX_HISTORY = 10; // Máximo de mensajes a recordar por conversación
+
+async function handleIncomingMessage(senderId, userMessage) {
   try {
-    if (!senderId || !mensajeTexto) {
-      console.error("❌ senderId o mensajeTexto inválidos");
-      return;
+    // Inicializar historial si es nueva conversación
+    if (!conversationHistory[senderId]) {
+      conversationHistory[senderId] = [];
     }
 
-    const respuesta = await preguntarAClaude(mensajeTexto);
-    console.log(`🤖 Respuesta generada: ${respuesta}`);
+    const history = conversationHistory[senderId];
 
-    if (!respuesta || typeof respuesta !== 'string') {
-      console.error("❌ Respuesta inválida de Claude");
-      return;
+    // Agregar mensaje del usuario al historial
+    history.push({
+      role: 'user',
+      content: userMessage,
+    });
+
+    // Limitar historial para no exceder tokens
+    if (history.length > MAX_HISTORY * 2) {
+      history.splice(0, 2); // Eliminar el par más antiguo (user + assistant)
     }
 
-    await enviarMensajeInstagram(senderId, respuesta);
-    console.log(`✅ Respuesta enviada a ${senderId}`);
+    // Llamar a Claude con el system prompt y el historial completo
+    const response = await client.messages.create({
+      model: 'claude-opus-4-5',
+      max_tokens: 1024,
+      system: SYSTEM_PROMPT,
+      messages: history,
+    });
 
+    const assistantMessage = response.content[0].text;
+
+    // Agregar respuesta al historial
+    history.push({
+      role: 'assistant',
+      content: assistantMessage,
+    });
+
+    return assistantMessage;
   } catch (error) {
-    console.error('❌ Error procesando mensaje:');
-    if (error.response) {
-      console.error("📡 Meta respondió:");
-      console.error(JSON.stringify(error.response.data, null, 2));
-    } else {
-      console.error(error.message);
-    }
+    console.error('Error en handleIncomingMessage:', error);
+    return 'Lo siento, tuve un problema técnico. Por favor escríbenos directamente al WhatsApp 0978860196 y te atendemos de inmediato. 🌳';
   }
 }
 
-async function enviarMensajeInstagram(recipientId, texto) {
-  try {
-    // Para Instagram Messaging se usa el IGAA token
-    const token = process.env.META_PAGE_ACCESS_TOKEN;
-    const igAccountId = process.env.INSTAGRAM_ACCOUNT_ID;
-
-    if (!token) throw new Error("Falta INSTAGRAM_ACCESS_TOKEN en variables de entorno");
-    if (!igAccountId) throw new Error("Falta INSTAGRAM_ACCOUNT_ID en variables de entorno");
-    if (!recipientId) throw new Error("recipientId es undefined");
-    if (!texto) throw new Error("texto vacío");
-
-    console.log(`📤 Enviando respuesta a ${recipientId}...`);
-    
-    await axios.post(
-      `https://graph.facebook.com/v21.0/${igAccountId}/messages`,
-      {
-        recipient: { id: recipientId },
-        message: { text: texto }
-      },
-      {
-        params: { access_token: token }
-      }
-    );
-
-  } catch (error) {
-    console.error("❌ Error enviando mensaje a Instagram:");
-    if (error.response) {
-      console.error("📡 Meta respondió:");
-      console.error(JSON.stringify(error.response.data, null, 2));
-    } else {
-      console.error(error.message);
-    }
-    throw error;
-  }
+// Limpiar historial de un usuario (por ejemplo, si pasa mucho tiempo)
+function clearHistory(senderId) {
+  delete conversationHistory[senderId];
 }
 
-module.exports = { procesarMensaje };
+module.exports = { handleIncomingMessage, clearHistory };
