@@ -4,7 +4,7 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const { SYSTEM_PROMPT } = require('./knowledgeBase');
-
+console.log('🔑 API KEY:', process.env.ANTHROPIC_API_KEY ? 'encontrada' : 'NO encontrada');
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 // Historial de conversaciones en memoria (por sender ID)
