@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { procesarMensaje } = require('../agents/dmAgent');
+const { handleIncomingMessage } = require('../agents/dmAgent');
 
 // Cache para evitar procesar el mismo mensaje dos veces
 const mensajesProcesados = new Set();
@@ -41,9 +41,9 @@ router.post('/', async (req, res) => {
           if (mid) mensajesProcesados.add(mid);
 
           try {
-            await procesarMensaje(event.sender.id, event.message.text);
+            await handleIncomingMessage(event.sender.id, event.message.text);
           } catch (error) {
-            console.error("❌ Error en procesarMensaje:", error.response?.data || error.message);
+            console.error("❌ Error en handleIncomingMessage:", error.response?.data || error.message);
           }
         }
       }
@@ -59,9 +59,9 @@ router.post('/', async (req, res) => {
         if (mid) mensajesProcesados.add(mid);
 
         try {
-          await procesarMensaje(event.sender.id, event.message.text);
+          await handleIncomingMessage(event.sender.id, event.message.text);
         } catch (error) {
-          console.error("❌ Error en procesarMensaje:", error.response?.data || error.message);
+          console.error("❌ Error en handleIncomingMessage:", error.response?.data || error.message);
         }
       }
     }
