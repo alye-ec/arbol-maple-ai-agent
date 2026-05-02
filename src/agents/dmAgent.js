@@ -11,7 +11,7 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 // Formato: { senderId: [ {role, content}, ... ] }
 const conversationHistory = {};
 const MAX_HISTORY = 10; // Máximo de mensajes a recordar por conversación
-console.log('🔑 API KEY:', process.env.ANTHROPIC_API_KEY ? 'encontrada' : 'NO encontrada');
+
 async function handleIncomingMessage(senderId, userMessage) {
   try {
     // Inicializar historial si es nueva conversación
