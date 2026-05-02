@@ -4,14 +4,14 @@
 
 const Anthropic = require('@anthropic-ai/sdk');
 const { SYSTEM_PROMPT } = require('./knowledgeBase');
-console.log('🔑 API KEY:', process.env.ANTHROPIC_API_KEY ? 'encontrada' : 'NO encontrada');
+
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 // Historial de conversaciones en memoria (por sender ID)
 // Formato: { senderId: [ {role, content}, ... ] }
 const conversationHistory = {};
 const MAX_HISTORY = 10; // Máximo de mensajes a recordar por conversación
-
+console.log('🔑 API KEY:', process.env.ANTHROPIC_API_KEY ? 'encontrada' : 'NO encontrada');
 async function handleIncomingMessage(senderId, userMessage) {
   try {
     // Inicializar historial si es nueva conversación
