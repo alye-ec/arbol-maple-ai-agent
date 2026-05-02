@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/alye-ec/arbol-maple-ai-agent#readme",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.92.0",
     "axios": "^1.13.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1"
