@@ -8,6 +8,16 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const conversationHistory = {};
 const MAX_HISTORY = 10;
 
+async function downloadImageAsBase64(url) {
+  const response = await axios.get(url, {
+    responseType: 'arraybuffer',
+    headers: { 'User-Agent': 'Mozilla/5.0' }
+  });
+  const base64 = Buffer.from(response.data).toString('base64');
+  const contentType = response.headers['content-type'] || 'image/jpeg';
+  return { base64, contentType };
+}
+
 async function handleIncomingMessage(senderId, texto, imageUrl = null) {
   console.log(`📩 Mensaje de ${senderId} | texto: ${texto} | imagen: ${imageUrl ? 'sí' : 'no'}`);
 
@@ -23,23 +33,23 @@ async function handleIncomingMessage(senderId, texto, imageUrl = null) {
 
     const history = conversationHistory[senderId];
 
-    // Construir el contenido del mensaje del usuario
     let userContent;
 
-    if (imageUrl && texto) {
-      // Texto + imagen
-      userContent = [
-        { type: 'text', text: texto },
-        { type: 'image', source: { type: 'url', url: imageUrl } }
-      ];
-    } else if (imageUrl) {
-      // Solo imagen
-      userContent = [
-        { type: 'text', text: '(El cliente envió una foto)' },
-        { type: 'image', source: { type: 'url', url: imageUrl } }
-      ];
+    if (imageUrl) {
+      try {
+        const { base64, contentType } = await downloadImageAsBase64(imageUrl);
+        const imageBlock = {
+          type: 'image',
+          source: { type: 'base64', media_type: contentType, data: base64 }
+        };
+        userContent = texto
+          ? [{ type: 'text', text: texto }, imageBlock]
+          : [{ type: 'text', text: '(El cliente envió una foto)' }, imageBlock];
+      } catch (imgError) {
+        console.error('❌ Error descargando imagen:', imgError.message);
+        userContent = texto || '(El cliente envió una imagen que no se pudo cargar)';
+      }
     } else {
-      // Solo texto
       userContent = texto;
     }
 
@@ -61,7 +71,6 @@ async function handleIncomingMessage(senderId, texto, imageUrl = null) {
     const respuesta = response.content[0].text;
     console.log(`🤖 Respuesta: ${respuesta}`);
 
-    // Guardar en historial solo el texto para no acumular imágenes en memoria
     history.push({ role: 'assistant', content: respuesta });
 
     await enviarMensajeInstagram(senderId, respuesta);
