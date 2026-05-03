@@ -1,9 +1,7 @@
 // src/agents/dmAgent.js
 const axios = require('axios');
 const Anthropic = require('@anthropic-ai/sdk');
-const { SYSTEM_PROMPT } = require('./knowledgeBase');
-
-console.log('🔑 API KEY:', process.env.ANTHROPIC_API_KEY ? 'encontrada' : 'NO encontrada');
+const { getSystemPrompt } = require('./catalogLoader');
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -31,10 +29,12 @@ async function handleIncomingMessage(senderId, mensajeTexto) {
       history.splice(0, 2);
     }
 
+    const systemPrompt = await getSystemPrompt();
+
     const response = await client.messages.create({
       model: 'claude-opus-4-5',
       max_tokens: 1024,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: history,
     });
 
@@ -55,10 +55,8 @@ async function enviarMensajeInstagram(recipientId, texto) {
   const token = process.env.META_PAGE_ACCESS_TOKEN;
   const igAccountId = process.env.INSTAGRAM_ACCOUNT_ID;
 
-  if (!token) throw new Error('Falta META_PAGE_ACCESS_TOKEN en variables de entorno');
-  if (!igAccountId) throw new Error('Falta INSTAGRAM_ACCOUNT_ID en variables de entorno');
-  if (!recipientId) throw new Error('recipientId es undefined');
-  if (!texto) throw new Error('texto vacío');
+  if (!token) throw new Error('Falta META_PAGE_ACCESS_TOKEN');
+  if (!igAccountId) throw new Error('Falta INSTAGRAM_ACCOUNT_ID');
 
   console.log(`📤 Enviando respuesta a ${recipientId}...`);
 
