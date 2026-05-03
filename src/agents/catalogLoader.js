@@ -170,6 +170,7 @@ Maple: Perfecto, quedamos atentos. Cualquier novedad, aquí estamos. 😊
 
 ## CATÁLOGO DE PRODUCTOS
 ${catalogo}`;
+}`;
 }
 
 async function getSystemPrompt() {

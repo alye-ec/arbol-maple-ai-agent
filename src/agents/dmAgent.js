@@ -74,12 +74,13 @@ async function handleIncomingMessage(senderId, texto, imageUrl = null) {
 
     const response = await client.messages.create({
       model: 'claude-opus-4-5',
-      max_tokens: 1024,
+      max_tokens: 300,
       system: systemPrompt,
       messages: history,
     });
 
-    const respuesta = response.content[0].text;
+    const respuestaRaw = response.content[0].text;
+    const respuesta = respuestaRaw.length > 950 ? respuestaRaw.substring(0, 947) + "..." : respuestaRaw;
     console.log(`🤖 Respuesta: ${respuesta}`);
 
     history.push({ role: 'assistant', content: respuesta });
