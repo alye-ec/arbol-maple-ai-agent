@@ -8,13 +8,23 @@ const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const conversationHistory = {};
 const MAX_HISTORY = 10;
 
+function detectImageType(buffer) {
+  const bytes = new Uint8Array(buffer);
+  if (bytes[0] === 0xFF && bytes[1] === 0xD8) return 'image/jpeg';
+  if (bytes[0] === 0x89 && bytes[1] === 0x50) return 'image/png';
+  if (bytes[0] === 0x47 && bytes[1] === 0x49) return 'image/gif';
+  if (bytes[0] === 0x52 && bytes[4] === 0x57) return 'image/webp';
+  return 'image/jpeg'; // fallback
+}
+
 async function downloadImageAsBase64(url) {
   const response = await axios.get(url, {
     responseType: 'arraybuffer',
     headers: { 'User-Agent': 'Mozilla/5.0' }
   });
-  const base64 = Buffer.from(response.data).toString('base64');
-  const contentType = response.headers['content-type'] || 'image/jpeg';
+  const buffer = Buffer.from(response.data);
+  const base64 = buffer.toString('base64');
+  const contentType = detectImageType(buffer);
   return { base64, contentType };
 }
 
@@ -38,6 +48,7 @@ async function handleIncomingMessage(senderId, texto, imageUrl = null) {
     if (imageUrl) {
       try {
         const { base64, contentType } = await downloadImageAsBase64(imageUrl);
+        console.log(`🖼️ Imagen descargada como ${contentType}`);
         const imageBlock = {
           type: 'image',
           source: { type: 'base64', media_type: contentType, data: base64 }
@@ -87,8 +98,6 @@ async function enviarMensajeInstagram(recipientId, texto) {
 
   if (!token) throw new Error('Falta META_PAGE_ACCESS_TOKEN');
   if (!igAccountId) throw new Error('Falta INSTAGRAM_ACCOUNT_ID');
-
-  console.log(`📤 Enviando a ${recipientId}...`);
 
   await axios.post(
     `https://graph.facebook.com/v21.0/${igAccountId}/messages`,
